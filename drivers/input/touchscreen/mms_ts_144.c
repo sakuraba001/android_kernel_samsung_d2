@@ -640,8 +640,15 @@ static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
 		input_mt_report_slot_state(info->input_dev,
 					   MT_TOOL_FINGER, true);
 		input_report_abs(info->input_dev, ABS_MT_WIDTH_MAJOR, tmp[4]);
+#if defined(CONFIG_MACH_M2_KDI)
+		input_report_abs(info->input_dev, ABS_MT_POSITION_X,
+			(info->max_x - x));
+		input_report_abs(info->input_dev, ABS_MT_POSITION_Y,
+			(info->max_y - y));
+#else		
 		input_report_abs(info->input_dev, ABS_MT_POSITION_X, x);
 		input_report_abs(info->input_dev, ABS_MT_POSITION_Y, y);
+#endif
 		input_report_abs(info->input_dev, ABS_MT_TOUCH_MAJOR, tmp[6]);
 		input_report_abs(info->input_dev, ABS_MT_TOUCH_MINOR, tmp[7]);
 		input_report_abs(info->input_dev, ABS_MT_ANGLE, angle);
