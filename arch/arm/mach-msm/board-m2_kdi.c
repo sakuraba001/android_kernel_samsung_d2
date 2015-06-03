@@ -330,7 +330,7 @@ static struct msm_gpiomux_config msm8960_sec_ts_configs[] = {
 #define HOLE_SIZE	0x20000
 #define MSM_CONTIG_MEM_SIZE  0x65000
 #ifdef CONFIG_MSM_IOMMU
-#define MSM_ION_MM_SIZE            0x3800000
+#define MSM_ION_MM_SIZE            0x6000000
 #define MSM_ION_SF_SIZE            0x0
 #define MSM_ION_QSECOM_SIZE        0x780000 /* (7.5MB) */
 #ifdef CONFIG_CMA
@@ -340,7 +340,7 @@ static struct msm_gpiomux_config msm8960_sec_ts_configs[] = {
 #endif
 #else
 #define MSM_ION_MM_SIZE		MSM_PMEM_ADSP_SIZE
-#define MSM_ION_SF_SIZE		0x6400000 /* 100MB */
+#define MSM_ION_SF_SIZE		0x5000000 /* 80MB */
 #define MSM_ION_QSECOM_SIZE	0x1700000 /* (24MB) */
 #ifdef CONFIG_CMA
 #define MSM_ION_HEAP_NUM	9
@@ -357,7 +357,7 @@ static struct msm_gpiomux_config msm8960_sec_ts_configs[] = {
 #define MSM_HDMI_PRIM_ION_SF_SIZE MSM_HDMI_PRIM_PMEM_SIZE
 
 #define MSM_MM_FW_SIZE      (0x200000 - HOLE_SIZE) /* 2mb -128kb*/
-#define MSM8960_FIXED_AREA_START (0xb0000000 - (MSM_ION_MM_FW_SIZE + \
+#define MSM8960_FIXED_AREA_START (0xa0000000 - (MSM_ION_MM_FW_SIZE + \
                             HOLE_SIZE))
 #define MAX_FIXED_AREA_SIZE 0x10000000
 #define MSM8960_FW_START    MSM8960_FIXED_AREA_START
@@ -820,7 +820,7 @@ static void __init reserve_ion_memory(void)
 
 			if (fixed_position != NOT_FIXED)
 				fixed_size += heap->size;
-			else
+			else if (!use_cma)
 				reserve_mem_for_ion(MEMTYPE_EBI1, heap->size);
 
 			if (fixed_position == FIXED_LOW) {
@@ -841,7 +841,7 @@ static void __init reserve_ion_memory(void)
 					heap->priv,
 					heap->size,
 					0,
-					0xb0000000);
+					0xa0000000);
 			}
 		}
 	}
@@ -921,7 +921,7 @@ static void __init reserve_ion_memory(void)
 						&ion_mm_heap_device.dev,
 						heap->size,
 						fixed_middle_start,
-						0xb0000000);
+						0xa0000000);
 					WARN_ON(ret);
 				}
 				pdata->secure_base = fixed_middle_start
@@ -1790,10 +1790,10 @@ static struct sec_bat_platform_data sec_bat_pdata = {
 	.max_voltage = 4350 * 1000,
 	.recharge_voltage = 4280 * 1000,
 	.event_block = 600,
-	.high_block = 630,
-	.high_recovery = 420,
+	.high_block = 600,
+	.high_recovery = 400,
 	.low_block = -50,
-	.low_recovery = 3,
+	.low_recovery = 0,
 	.lpm_high_block = 600,
 	.lpm_high_recovery = 400,
 	.lpm_low_block = -50,
@@ -2082,7 +2082,6 @@ static struct platform_device opt_gp2a = {
 		.platform_data  = &opt_gp2a_data,
 	},
 };
-
 #endif
 #endif
 #ifdef CONFIG_MPU_SENSORS_MPU6050B1_411
@@ -5261,7 +5260,7 @@ static void __init gpio_rev_init(void)
 		gpio_keys_platform_data.nbuttons = ARRAY_SIZE(gpio_keys_button);
 	}
 #if defined(CONFIG_SENSORS_CM36651)
-	if (system_rev >= BOARD_REV02)
+	if (system_rev < BOARD_REV02)
 		cm36651_pdata.irq = gpio_rev(ALS_INT);
 #endif
 #if defined(CONFIG_OPTICAL_GP2A) || defined(CONFIG_OPTICAL_GP2AP020A00F) \
@@ -5269,12 +5268,12 @@ static void __init gpio_rev_init(void)
 	opt_i2c_gpio_data.sda_pin = gpio_rev(ALS_SDA);
 	opt_i2c_gpio_data.scl_pin = gpio_rev(ALS_SCL);
 #if defined(CONFIG_OPTICAL_GP2A)
-	if (system_rev >= BOARD_REV02) {
+	if (system_rev < BOARD_REV02) {
 		opt_gp2a_data.irq = MSM_GPIO_TO_INT(gpio_rev(ALS_INT));
 		opt_gp2a_data.ps_status = gpio_rev(ALS_INT);
 	}
 #elif defined(CONFIG_OPTICAL_GP2AP020A00F)
-	if (system_rev >= BOARD_REV02)
+	if (system_rev < BOARD_REV02)
 		opt_gp2a_data.p_out = gpio_rev(ALS_INT);
 #endif
 #endif
