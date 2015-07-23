@@ -1282,7 +1282,7 @@ static int msm8960_i2s_tx_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 
 	return 0;
 }
-#if 0
+#if defined(CONFIG_MACH_M2_DCM) || defined(CONFIG_MACH_M2_KDI)
 static int msm8960_slim_0_rx_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 			struct snd_pcm_hw_params *params)
 {
@@ -1776,7 +1776,7 @@ static struct snd_soc_dai_link msm8960_i2s_be_dai[] = {
 		.ops = &msm8960_i2s_be_ops,
 	},
 };
-#if 0
+#if defined(CONFIG_MACH_M2_DCM) || defined(CONFIG_MACH_M2_KDI)
 static struct snd_soc_dai_link msm8960_slimbus_be_dai[] = {
 	{
 		.name = LPASS_BE_SLIMBUS_0_RX,
@@ -2288,7 +2288,7 @@ static int __init msm8960_audio_init(void)
 	int ret;
 	msm8960_dai_list = kzalloc(sizeof(msm8960_dai) +
 			2 * sizeof(struct snd_soc_dai_link), GFP_KERNEL);
-/*
+#if defined(CONFIG_MACH_M2_DCM) || defined(CONFIG_MACH_M2_KDI)
 	if (tabla_get_intf_type() == TABLA_INTERFACE_TYPE_SLIMBUS) {
 		memcpy(msm8960_dai_list, msm8960_dai, sizeof(msm8960_dai));
 		memcpy(&msm8960_dai_list[ARRAY_SIZE(msm8960_dai)],
@@ -2297,14 +2297,16 @@ static int __init msm8960_audio_init(void)
 		snd_soc_card_msm8960.num_links = ARRAY_SIZE(msm8960_dai) +
 					ARRAY_SIZE(msm8960_slimbus_be_dai);
 	} else if (tabla_get_intf_type() == TABLA_INTERFACE_TYPE_I2C) {
-*/
+#endif
 		memcpy(msm8960_dai_list, msm8960_dai, sizeof(msm8960_dai));
 		memcpy(&msm8960_dai_list[ARRAY_SIZE(msm8960_dai)],
 				msm8960_i2s_be_dai, sizeof(msm8960_i2s_be_dai));
 		snd_soc_card_msm8960.dai_link = msm8960_dai_list;
 		snd_soc_card_msm8960.num_links = ARRAY_SIZE(msm8960_dai) +
 					ARRAY_SIZE(msm8960_i2s_be_dai);
-//	}
+#if defined(CONFIG_MACH_M2_DCM) || defined(CONFIG_MACH_M2_KDI)
+	}
+#endif
 
 	printk(KERN_INFO "%s: start", __func__);
 	mbhc_cfg.calibration = def_tabla_mbhc_cal();
